@@ -63,4 +63,9 @@ abstract class BaseRepository
     {
         return $this->model->find($id)->delete();
     }
+
+    public function updateOrCreate($attributes = [], $id = null)
+    {
+        return $this->model->updateOrCreate($attributes, $id);
+    }
 }

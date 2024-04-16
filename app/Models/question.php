@@ -8,10 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class question extends Model
 {
     use HasFactory;
-    protected $table = 'question';
+    protected $table = 'questions';
     protected $fillable = [
         'id',
         'content',
         'thread_id',
     ];
+
+    public function threads()
+    {
+        return $this->belongsTo(thread::class, 'thread_id', 'id');
+    }
+
+    public function answers()
+    {
+        return $this->hasOne(answer::class);
+    }
 }

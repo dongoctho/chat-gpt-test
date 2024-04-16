@@ -13,17 +13,39 @@ class HomeController extends Controller
         $this->openAiService = $openAiService;
     }
     public function index() {
-        dd('hello');
+        return view('index');
     }
     //
     public function createRequest(Request $request)
     {
-        //
-        // dd('helo');
-
         $promt = $request->promt;
         $instructions = $request->instructions;
         $response = $this->openAiService->createProcess($promt,$instructions);
-        return $response;
+
+        return view('index')->with('content');
+    }
+
+    public function list()
+    {
+        $datas = $this->openAiService->listChat();
+
+        return view('content', compact('datas'));
+    }
+
+    public function edit(string $id)
+    {
+        $data = $this->openAiService->findThread($id);
+        $thread_id = $id;
+        return view('edit', compact('data', 'thread_id'));
+    }
+
+    public function continueChat(Request $request)
+    {
+        $promt = $request->promt;
+        $instructions = $request->instructions;
+        $thread_id = $request->id;
+        $response = $this->openAiService->createProcess($promt,$instructions, $thread_id);
+
+        return view('index')->with('content');
     }
 }

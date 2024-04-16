@@ -12,8 +12,14 @@ class thread extends Model
     protected $fillable = [
         'id',
         'title',
-        'content',
+        'thread_id',
+        'assistant_id',
         'user_id',
         'modal_id',
     ];
+
+    public function questions()
+    {
+        return $this->hasMany(question::class);
+    }
 }

@@ -21,21 +21,30 @@ class OpenAiService
         $this->answerRepository = $answerRepository;
     }
 
-    public function createProcess(string $promt,string $instructions=null)
-    {
+    public function createProcess(
+        string $promt,
+        string $instructions = null,
+        string $id = null
+    ) {
         $key =  env('OPENAI_API_KEY');
         $client =  OpenAI::client($key);
 
-        $thread = $client->threads()->create([
 
-        ]);
 
-        $assistant = $client->assistants()->create([
-            'instructions' => $instructions,
-            'model' => 'gpt-4',
-        ]);
+        if ($id == null) {
+            $thread = $client->threads()->create([]);
 
-        $message = $client->threads()->messages()->create($thread->id,[
+            $assistant = $client->assistants()->create([
+                'instructions' => $instructions,
+                'model' => 'gpt-3.5-turbo',
+            ]);
+        } else {
+            $findThread = $this->threadRepository->find($id);
+            $thread = $client->threads()->retrieve($findThread->thread_id);
+        }
+
+
+        $client->threads()->messages()->create($thread->id, [
             'role' => 'user',
             'content' => $promt,
         ]);
@@ -56,12 +65,27 @@ class OpenAiService
         }
 
         $response = $client->threads()->messages()->list($thread->id)->toArray();
-        $data =[
+
+
+
+        $data = [
             'threadId' => $response['data'][0]['thread_id'],
             'assistantId' => $response['data'][0]['assistant_id'],
             'content' => $response['data'][0]['content'][0]['text']['value'],
         ];
+
         return $data;
     }
 
+    public function listChat()
+    {
+        $datas = $this->threadRepository->getThread('questions.answers');
+        return $datas;
+    }
+
+    public function findThread($id)
+    {
+        $datas = $this->questionRepository->getQuestionWithCondition(['thread_id' => $id], 'answers');
+        return $datas;
+    }
 }

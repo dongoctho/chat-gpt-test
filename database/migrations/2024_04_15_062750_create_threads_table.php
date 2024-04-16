@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('threads', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('title');
-            $table->text('content');
+            $table->string('thread_id')->unique();
+            $table->string('assistant_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('modal_id');
 

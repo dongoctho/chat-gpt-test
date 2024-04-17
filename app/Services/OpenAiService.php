@@ -24,25 +24,38 @@ class OpenAiService
     public function createProcess(
         string $promt,
         string $instructions = null,
-        string $id = null
+        string $thread_id = null,
+        string $assistantId = null
     ) {
         $key =  env('OPENAI_API_KEY');
         $client =  OpenAI::client($key);
 
-
-
-        if ($id == null) {
+        if ($thread_id == null) {
             $thread = $client->threads()->create([]);
 
             $assistant = $client->assistants()->create([
                 'instructions' => $instructions,
                 'model' => 'gpt-3.5-turbo',
             ]);
-        } else {
-            $findThread = $this->threadRepository->find($id);
-            $thread = $client->threads()->retrieve($findThread->thread_id);
-        }
 
+            $assistantId = $assistant->id;
+        } else {
+            $thread = $client->threads()->retrieve($thread_id);
+
+            //change assistant
+            if($instructions != null){
+                $client->assistants()->modify($assistantId, [
+                    'instructions' => $instructions,
+                    'model' => 'gpt-4',
+                ]
+                );
+            } else {
+                $client->assistants()->modify($assistantId, [
+                    'model' => 'gpt-4',
+                ]
+                );
+            }
+        }
 
         $client->threads()->messages()->create($thread->id, [
             'role' => 'user',
@@ -52,7 +65,7 @@ class OpenAiService
         $runs = $client->threads()->runs()->create(
             threadId: $thread->id,
             parameters: [
-                'assistant_id' => $assistant->id,
+                'assistant_id' => $assistantId,
             ],
         );
 
@@ -64,14 +77,15 @@ class OpenAiService
             if ($runs->status == 'completed') break;
         }
 
+        dd($runs);
+
         $response = $client->threads()->messages()->list($thread->id)->toArray();
-
-
 
         $data = [
             'threadId' => $response['data'][0]['thread_id'],
             'assistantId' => $response['data'][0]['assistant_id'],
-            'content' => $response['data'][0]['content'][0]['text']['value'],
+            'contentAnswer' => $response['data'][0]['content'][0]['text']['value'],
+            'contentQuestion' => $response['data'][1]['content'][0]['text']['value'],
         ];
 
         return $data;
@@ -83,9 +97,13 @@ class OpenAiService
         return $datas;
     }
 
-    public function findThread($id)
+    public function getQuestionAnswer($id)
     {
-        $datas = $this->questionRepository->getQuestionWithCondition(['thread_id' => $id], 'answers');
+        $datas = $this->questionRepository->getQuestionWithCondition(['thread_id'=>$id],'answers');
         return $datas;
+    }
+    public function findThread($id){
+        $thread = $this->threadRepository->find($id);
+        return $thread;
     }
 }

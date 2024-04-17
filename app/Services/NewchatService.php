@@ -21,35 +21,35 @@ class NewchatService
     }
 
     public function createChat(
-        string $promt,
-        string $instructions = null,
-        string $id = null,
-        $client
-    )
-    {
-        $thread = $client->threads()->create([]);
-        $assistant = $client->assistants()->create([
-            'instructions' => $instructions,
-            'model' => 'gpt-3.5-turbo',
-        ]);
+        string $threadId,
+        string $assistantId,
+        string $contentAnswer,
+        string $contentQuestion,
+        string $promt
+    ) {
         $title = $promt;
+
         $atribute = [
             'title' => $title,
-            'thread_id' => $thread->id,
-            'assistant_id' => $assistant->id,
+            'thread_id' => $threadId,
+            'assistant_id' => $assistantId,
             'user_id' => 1,
             'modal_id' => '1',
         ];
-        $thread = $this->threadRepository->create($atribute);
+
+        $Createthread = $this->threadRepository->create($atribute);
 
         $createQuestion = $this->questionRepository->create([
-            'content' => $promt,
-            'thread_id' => $thread->id,
+            'content' => $contentQuestion,
+            'thread_id' => $Createthread->id,
         ]);
+
         $createAnswer = $this->answerRepository->create([
-            'content' => $response['data'][0]['content'][0]['text']['value'],
+            'content' => $contentAnswer,
             'question_id' => $createQuestion->id,
         ]);
+
+        return response()->json('ok', 200);
     }
 
 

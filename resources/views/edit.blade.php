@@ -13,7 +13,9 @@
         <h2>Stacked form</h2>
         <form action="{{ route('chatgpt.create.continue') }}" method="POST">
             @csrf
-            <input type="text" name="id" value="{{ $thread_id }}" hidden>
+            <input type="text" name="thread_id" value="{{ $thread_id }}"hidden >
+            <input type="text" name="id" value="{{ $id }}"hidden >
+            <input type="text" name="assistant_id" value="{{ $assistant_id }}"hidden >
             <div class="mb-3 mt-3">
                 <label for="email">Chat:</label>
                 <input type="text" class="form-control" id="content" placeholder="Enter chat" name="promt">

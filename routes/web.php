@@ -12,6 +12,6 @@ Route::get('/', function () {
 // Route::resource('/chatgpt',OpenAiController::class);
 Route::get('/', [HomeController::class,'index'])->name('chatgpt.index');
 Route::post('/chatgpt/create/', [HomeController::class,'createRequest'])->name('chatgpt.create');
-Route::get('/list', [HomeController::class,'list'])->name('chatgpt.index');
+Route::get('/list', [HomeController::class,'list'])->name('chatgpt.list');
 Route::get('/edit/{id}', [HomeController::class,'edit'])->name('chatgpt.edit');
 Route::post('/chatgpt/create/continue', [HomeController::class,'continueChat'])->name('chatgpt.create.continue');
